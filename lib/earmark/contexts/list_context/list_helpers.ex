@@ -31,28 +31,39 @@ defmodule Earmark.Contexts.ListContext.ListHelpers do
   end
 
   @doc false
-  def tighten_lists(blocks)
-  def tighten_lists(blocks) do
-    Enum.map(blocks, &tighten_list/1)
+  @ol_bullet ~r<\d{1,9}[.)]>
+  def extract_start(%{bullet: "1."}), do: ""
+  def extract_start(%{bullet: "1)"}), do: ""
+  def extract_start(%{bullet: bullet}) do
+    case Regex.run(@ol_bullet, bullet) do
+      nil -> ""
+      [start] -> ~s{ start="#{start}"}
+    end
   end
 
-  defp tighten_list(block)
-  defp tighten_list(%Block.List{blocks: blocks} = list) do
-    # tight = Enum.any?(blocks, &_list_item_tight?(&1.blocks, :init))
-    tight = Enum.any?(blocks, &_list_item_tight?/1)
-    blocks1 = Enum.map(blocks, &%{&1  | tight: tight})
-    %{list | blocks: tighten_lists(blocks1)}
+  @doc false
+  def loosen_lists(blocks)
+  def loosen_lists(blocks) do
+    Enum.map(blocks, &loosen_list/1)
   end
-  defp tighten_list(%{blocks: blocks} = list) do
-    %{list | blocks: tighten_lists(blocks)}
+
+  defp loosen_list(block)
+  defp loosen_list(%Block.List{blocks: blocks} = list) do
+    # loose = Enum.any?(blocks, &_list_item_loose?(&1.blocks, :init))
+    loose = Enum.any?(blocks, &_list_item_loose?/1)
+    blocks1 = Enum.map(blocks, &%{&1  | loose: loose})
+    %{list | blocks: loosen_lists(blocks1)}
   end
-  defp tighten_list(block) do
+  defp loosen_list(%{blocks: blocks} = list) do
+    %{list | blocks: loosen_lists(blocks)}
+  end
+  defp loosen_list(block) do
     block
   end
 
-  defp _list_item_tight?(block)
-  defp _list_item_tight?(%Block.ListItem{tight: true}), do: true
-  defp _list_item_tight?(_), do: false
+  defp _list_item_loose?(block)
+  defp _list_item_loose?(%Block.ListItem{loose: true}), do: true
+  defp _list_item_loose?(_), do: false
 
   
   defp _int_prefix_at(list, idx) do

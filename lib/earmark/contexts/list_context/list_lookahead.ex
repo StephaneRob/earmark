@@ -2,32 +2,20 @@ defmodule Earmark.Contexts.ListContext.ListLookahead do
 
   use Earmark.Types
 
+  # TODO: Remove me
   alias Dev.Debugging
+
+  alias Earmark.Contexts.ListContext.ListInfo
   alias Earmark.Line
   # alias Dev.Debugging, as: D
   import Earmark.Helpers.InlineCodeHelpers
   import Earmark.Contexts.ListContext.ListHelpers
-  import Earmark.Helpers.StringHelpers, only: [behead: 2, behead_indent: 2]
+  import Earmark.Contexts.StringContext, only: [behead: 2, behead_indent: 2]
 
-  defmodule ListInfo do
-    @moduledoc """
-    Represents the information needed by `read_list_info` to decide if
-    a line does still belong to a list item, if it is tight and if it has
-    trailing blank lines.
-    """
-    defstruct bullet_type: "-, *, +, ), .",
-          pending: {nil, 0}, # or { "`", 42}
-          indent: 0,      # "  1. a" --> 2
-          list_indent: 0, # "  1. a" --> 5
-          tight?: false,
-          trailing_blanks?: false,
-          type: :ul # or | :ol
-  end
-  alias Earmark.Contexts.ListContext.ListLookahead.ListInfo
 
   @moduledoc """
   Read all lines that are contained in a list item and return them with the information
-  if the list item is tight and if it has trailing blank items.
+  if the list item is loose and if it has trailing blank items.
   """
 
   @doc """
@@ -97,25 +85,25 @@ defmodule Earmark.Contexts.ListContext.ListLookahead do
   defp _read_list_lines(
          [ %Line.ListItem{line: line, initial_indent: new_indent} | rest],
          result,
-         params = %{list_indent: list_indent, pending: @not_pending, tight?: false, trailing_blanks?: false})
+         params = %{list_indent: list_indent, pending: @not_pending, loose?: false, trailing_blanks?: false})
        when new_indent >= list_indent  do
          _dbg_read_list_lines(rest, [behead_indent(line, list_indent)| result], _opens_inline_code(line, params))
        end
   defp _read_list_lines(
          [ %Line.ListItem{} | _] = rest,
          result,
-         %{pending: @not_pending,trailing_blanks?: trailing_blanks, tight?: tight})
+         %{pending: @not_pending,trailing_blanks?: trailing_blanks, loose?: loose})
        do
          # IO.inspect [:l03]
-         {tight || trailing_blanks, trailing_blanks, Enum.reverse(result), rest}
+         {loose || trailing_blanks, trailing_blanks, Enum.reverse(result), rest}
   end
   defp _read_list_lines(
          [ %Line.Ruler{} | _] = rest,
          result,
-         %ListInfo{tight?: tight, trailing_blanks?: trailing_blanks}
+         %ListInfo{loose?: loose, trailing_blanks?: trailing_blanks}
        ) do
          # IO.inspect [:l05]
-         {tight, trailing_blanks, Enum.reverse(result), rest}
+         {loose, trailing_blanks, Enum.reverse(result), rest}
   end
   # As long as we are not behind a blank line
   defp _read_list_lines(
@@ -136,10 +124,10 @@ defmodule Earmark.Contexts.ListContext.ListLookahead do
   defp _read_list_lines(
     input,
     result,
-    %ListInfo{pending: @not_pending, tight?: tight})
+    %ListInfo{pending: @not_pending, loose?: loose})
   do
     # IO.inspect [:l06, line: line]
-    {tight, true, Enum.reverse(result), input}
+    {loose, true, Enum.reverse(result), input}
   end
   # Only now we match for list lines inside an open multiline inline code block
   defp _read_list_lines(
@@ -153,8 +141,8 @@ defmodule Earmark.Contexts.ListContext.ListLookahead do
   end
   defp _read_list_lines([],
     result,
-    %ListInfo{tight?: tight, trailing_blanks?: trailing_blanks}) do
-    {tight, trailing_blanks, Enum.reverse(result), []}
+    %ListInfo{loose?: loose, trailing_blanks?: trailing_blanks}) do
+    {loose, trailing_blanks, Enum.reverse(result), []}
   end
 
   defp _dbg_read_list_lines(input, result, info) do

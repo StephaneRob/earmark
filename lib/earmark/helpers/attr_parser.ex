@@ -1,6 +1,6 @@
 defmodule Earmark.Helpers.AttrParser do
 
-  import Earmark.Helpers.StringHelpers, only: [ behead: 2 ]
+  import Earmark.Contexts.StringContext, only: [ behead: 2 ]
   import Earmark.Message, only: [add_message: 2]
 
   @type errorlist :: list(String.t)

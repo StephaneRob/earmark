@@ -124,10 +124,10 @@ defmodule Earmark.Line do
 
   # (_,atom() | tuple() | #{},_) -> ['Elixir.B']
   def scan_lines(lines, options \\ %Options{}, recursive \\ false)
-
   def scan_lines(lines, options, recursive) do
     starting_line = options.line -
       if recursive, do: 0, else: 1
+
     lines_with_count(lines, starting_line)
     |> get_mapper(options).(fn line -> type_of(line, options, recursive) end)
   end

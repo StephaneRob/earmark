@@ -7,7 +7,7 @@ defmodule Earmark.Inline do
   alias Earmark.Error
   alias Earmark.Helpers.LinkParser
   import Earmark.Helpers
-  import Earmark.Helpers.StringHelpers, only: [behead: 2]
+  import Earmark.Contexts.StringContext, only: [behead: 2]
   import Earmark.Helpers.HtmlHelpers, only: [augment_tag_with_ial: 4]
   import Earmark.Context, only: [prepend: 2, set_value: 2]
   import Earmark.Message, only: [add_messages: 2]

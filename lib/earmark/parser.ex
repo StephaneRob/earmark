@@ -5,9 +5,10 @@ defmodule Earmark.Parser do
   alias Earmark.Options
 
   import Earmark.Helpers.InlineCodeHelpers, only: [opens_inline_code: 1, still_inline_code: 2]
-  import Earmark.Contexts.ListContext.ListLookahead, only: [read_list_lines: 1]
+  # import Earmark.Contexts.ListContext.ListLookahead, only: [read_list_lines: 1]
+  import Earmark.Contexts.ParserContext.ListParser, only: [parse_list: 3]
   import Earmark.Helpers.LineHelpers
-  import Earmark.Contexts.ListContext.ListHelpers, only: [tighten_lists: 1]
+  import Earmark.Contexts.ListContext.ListHelpers, only: [loosen_lists: 1]
   import Earmark.Helpers.AttrParser
   import Earmark.Helpers.ReparseHelpers
   import Earmark.Message, only: [add_message: 2, add_messages: 2]
@@ -71,16 +72,23 @@ defmodule Earmark.Parser do
   end
 
   defp _blocks_consolidate(blocks) do
-    # blocks |> assign_attributes_to_blocks([]) |> IO.inspect |> consolidate_list_items([]) |> tighten_lists()
+    # blocks |> assign_attributes_to_blocks([]) |> IO.inspect |> consolidate_list_items([]) |> loosen_lists()
     blocks
     |> assign_attributes_to_blocks([])
     |> Debugging.debug("before consolidate_list_items")
     |> consolidate_list_items([])
-    |> Debugging.debug("before tighten")
-    |> tighten_lists()
-    |> Debugging.debug("after tighten")
+    |> Debugging.debug("before loosen")
+    |> loosen_lists()
+    |> Debugging.debug("after loosen")
   end
 
+
+  @doc """
+  Entry point for subparsers, might go away
+  """
+  def parse(lines, result, options) do
+    _parse(lines, result, options)
+  end
 
   defp _parse([], result, options), do: {result, options}
 
@@ -184,12 +192,14 @@ defmodule Earmark.Parser do
   # in the second we combine adjacent items into lists. This is pass one
 
   defp _parse( [%Line.ListItem{type: type, bullet: bullet, bullet_type: bullet_type, lnb: lnb} | _ ] = lines, result, options) do
-    {tight, spaced, list_lines, rest} = read_list_lines(lines)
-    # |> IO.inspect
+    # {loose, spaced, list_lines, rest} = read_list_lines(lines)
+    # # |> IO.inspect
 
-    {blocks, _, options1} = parse(list_lines, %{options | line: lnb}, true)
+    # {blocks, _, options1} = parse(list_lines, %{options | line: lnb}, true)
 
-    _parse([%Line.Blank{lnb: 0} | rest], [ %Block.ListItem{type: type, blocks: blocks, bullet: bullet, bullet_type: bullet_type, lnb: lnb, tight: tight, spaced: spaced} | result ], options1)
+    { result1, rest, options1 } = parse_list(lines, result, options)
+
+    _parse( rest, [result1], options1)
   end
 
   #################

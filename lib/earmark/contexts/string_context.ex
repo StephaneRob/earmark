@@ -1,5 +1,5 @@
-defmodule Earmark.Helpers.StringHelpers do
-
+defmodule Earmark.Contexts.StringContext do
+  
   @doc """
   Remove the leading part of a string
 
@@ -43,5 +43,3 @@ defmodule Earmark.Helpers.StringHelpers do
     {lead, behead(str, lead)}
   end
 end
-
-# SPDX-License-Identifier: Apache-2.0

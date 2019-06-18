@@ -7,6 +7,10 @@ defmodule Support.ParserTestCase do
       alias Earmark.Line
       alias Earmark.Options
       alias Earmark.Block
+      alias Earmark.Block.Blank
+      alias Earmark.Block.List
+      alias Earmark.Block.ListItem
+      alias Earmark.Block.Para
       alias Earmark.Parser
 
       import Support.Parser

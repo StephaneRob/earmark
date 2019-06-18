@@ -9,14 +9,14 @@ defmodule Earmark.HtmlRenderer do
   import Earmark.Context, only: [append: 2, set_value: 2]
   import Earmark.Options, only: [get_mapper: 1]
 
-  def render(blocks, context, tight \\ true)
-  def render(blocks, context = %Context{options: %Options{}}, tight) do
+  def render(blocks, context, loose \\ true)
+  def render(blocks, context = %Context{options: %Options{}}, loose) do
     messages = get_messages(context)
 
     {contexts, html} =
       get_mapper(context.options).(
         blocks,
-        &render_block(&1, put_in(context.options.messages, []), tight)
+        &render_block(&1, put_in(context.options.messages, []), loose)
       )
       |> Enum.unzip()
 
@@ -27,7 +27,7 @@ defmodule Earmark.HtmlRenderer do
     {put_in(context.options.messages, all_messages), html |> IO.iodata_to_binary()}
   end
 
-  defp render_block(block, context, tight \\ false)
+  defp render_block(block, context, loose \\ false)
   #############
   # Paragraph #
   #############
@@ -153,12 +153,12 @@ defmodule Earmark.HtmlRenderer do
   end
 
   defp render_block(
-         %Block.ListItem{lnb: lnb, blocks: blocks, tight: tight, attrs: attrs},
+         %Block.ListItem{lnb: lnb, blocks: blocks, loose: loose, attrs: attrs},
          context, _
        ) do
        # when length(blocks) == 1 do
-    # IO.inspect(["ListItem", tight: tight, block: blocks|>hd()])
-    {context1, content} = render(blocks, context, tight)
+    # IO.inspect(["ListItem", loose: loose, block: blocks|>hd()])
+    {context1, content} = render(blocks, context, loose)
     html = "<li>#{content}</li>\n"
     add_attrs!(context1, html, attrs, [], lnb)
   end

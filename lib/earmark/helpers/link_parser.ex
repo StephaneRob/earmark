@@ -1,7 +1,7 @@
 defmodule Earmark.Helpers.LinkParser do
   import Earmark.Helpers.LeexHelpers, only: [tokenize: 2]
   import Earmark.Helpers.YeccHelpers, only: [parse!: 2]
-  import Earmark.Helpers.StringHelpers, only: [behead: 2]
+  import Earmark.Contexts.StringContext, only: [behead: 2]
 
   # Hopfully this will go away in v1.3
   # **********************************

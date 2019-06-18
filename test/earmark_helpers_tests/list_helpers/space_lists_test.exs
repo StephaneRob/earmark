@@ -2,7 +2,7 @@ defmodule EarmarkHelpersTests.ListHelpers.SpaceListsTest do
   use ExUnit.Case
 
   alias Earmark.Block
-  import Earmark.Helpers.ListHelpers, only: [tighten_lists: 1]
+  import Earmark.Helpers.ListHelpers, only: [loosen_lists: 1]
 
   @one_input [
   %Block.Blank{},
@@ -58,6 +58,6 @@ defmodule EarmarkHelpersTests.ListHelpers.SpaceListsTest do
   :blank
 ]
   test "one" do
-    assert tighten_lists(@one_input) == @one_output
+    assert loosen_lists(@one_input) == @one_output
   end
 end

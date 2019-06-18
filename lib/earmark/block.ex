@@ -11,7 +11,7 @@ defmodule Earmark.Block do
   defmodule Heading,     do: defstruct lnb: 0, attrs: nil, content: nil, level: nil
   defmodule Ruler,       do: defstruct lnb: 0, attrs: nil, type: nil
   defmodule BlockQuote,  do: defstruct lnb: 0, attrs: nil, blocks: []
-  defmodule Para,        do: defstruct lnb: 0, attrs: nil, lines:  []
+  defmodule Para,        do: defstruct lnb: 0, attrs: nil, lines:  [], loose: true
   defmodule Code,        do: defstruct lnb: 0, attrs: nil, lines:  [], language: nil
   defmodule Html,        do: defstruct lnb: 0, attrs: nil, html:   [], tag: nil
   defmodule HtmlOther,   do: defstruct lnb: 0, attrs: nil, html:   []
@@ -21,7 +21,7 @@ defmodule Earmark.Block do
   defmodule Ial,         do: defstruct lnb: 0, attrs: nil, content: nil, verbatim: ""
   # List does not need line number
   defmodule List,        do: defstruct lnb: 1, attrs: nil, type: :ul, blocks:  [], start: "", bullet: "-, +, *, 1) or 2.", bullet_type: "-, +, *, . or )"
-  defmodule ListItem,    do: defstruct lnb: 0, attrs: nil, type: :ul, spaced: false, tight: false, blocks: [], bullet: "-, +, *, 1) or 2.", bullet_type: "-, +, *, . or )" 
+  defmodule ListItem,    do: defstruct lnb: 0, attrs: nil, type: :ul, spaced: false, loose: false, blocks: [], bullet: "-, +, *, 1) or 2.", bullet_type: "-, +, *, . or )" 
 
   defmodule Plugin,      do: defstruct lnb: 0, attrs: nil, lines: [], handler: nil, prefix: "" # prefix is appended to $$
 
